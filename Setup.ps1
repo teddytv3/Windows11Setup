@@ -27,6 +27,9 @@ $UWPApps = @(
     "Microsoft.Getstarted"
     "Microsoft.Todos"
     "MicrosoftTeams"
+    "Microsoft.LinkedIn"
+    "SpotifyAB.SpotifyMusic"
+    "Microsoft.549981C3F5F10"
 )
 
 Write-Host "Removing Pre-Installed Software"
