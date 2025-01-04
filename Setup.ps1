@@ -1,3 +1,8 @@
+if (-NOT ([Security.Principle.WindowsPrinciple][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principle.WindowsBuiltInRole] "Administrator")) {
+    $arguments = "& '" + $MyInvocation.MyCommand.definition + "'"
+    Start-Process powershell -Verb runAs -ArgumentList $arguments
+}
+
 #List of apps to remove. Add/Remove as needed
 $UWPApps = @(
     "Microsoft.Microsoft3DViewer"
