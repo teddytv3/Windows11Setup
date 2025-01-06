@@ -1,6 +1,21 @@
-if (-NOT ([Security.Principle.WindowsPrinciple][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principle.WindowsBuiltInRole] "Administrator")) {
-    $arguments = "& '" + $MyInvocation.MyCommand.definition + "'"
-    Start-Process powershell -Verb runAs -ArgumentList $arguments
+function IsAdmin {
+    $currentIdentity = [Security.Principal.WindowsIdentity]::GetCurrent()
+    $principal = New-Object Security.Principal.WindowsPrincipal($currentIdentity)
+    return $principal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
+}
+
+if (-not (IsAdmin)) {
+    Write-Host "This script needs to be run as Administrator."
+
+    $response = Read-Host "Do you want to restart the script with Administrator privileges? (Y/N)"
+    if ($response -eq 'Y') {
+        Start-Process powershell -ArgumentList "-File `"$PSCommandPath`"" -Verb RunAs
+        exit
+    }
+    else {
+        Write-Host "Exiting script."
+        exit
+    }
 }
 
 #List of apps to remove. Add/Remove as needed
@@ -37,6 +52,8 @@ $UWPApps = @(
     "Microsoft.Copilot"
     "MicrosoftCorporationII.QuickAssist"
     "Microsoft.GetHelp"
+    "Microsoft.OutlookForWindows"
+    "Microsoft.OneDriveSync"
 )
 
 Write-Host "Removing Pre-Installed Software"
@@ -79,25 +96,38 @@ Select-Object @{Name = "SID"; Expression = { $_.PSChildName } }, @{Name = "UserH
     if (($ProfileWasLoaded = Test-Path Registry::HKEY_USERS\$($UserProfile.SID)) -eq $false) {
         Start-Process -FilePath "CMD.EXE" -ArgumentList "/C REG.EXE LOAD HKU\$($UserProfile.SID) $($UserProfile.UserHive)" -Wait -WindowStyle Hidden
     }
-    Write-Host "Attempting to run: $PSItem"
+    Write-Host "Removing Taskview From Taskbar"
     $reg = New-ItemProperty "registry::HKEY_USERS\$($UserProfile.SID)\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ShowTaskViewButton" -Value "0" -PropertyType Dword -Force
     try { $reg.Handle.Close() } catch {}
 
-    # Removes Widgets from the Taskbar
-    Write-Host "Attempting to run: $PSItem"
+    Write-Host "Removing Widgets From Taskbar"
     $reg = New-ItemProperty "registry::HKEY_USERS\$($UserProfile.SID)\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "TaskbarDa" -Value "0" -PropertyType Dword -Force
     try { $reg.Handle.Close() } catch {}
                 
-    # Removes Chat from the Taskbar
-    Write-Host "Attempting to run: $PSItem"
+    Write-Host "Removing Chat From Taskbar"
     $reg = New-ItemProperty "registry::HKEY_USERS\$($UserProfile.SID)\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "TaskbarMn" -Value "0" -PropertyType Dword -Force
     try { $reg.Handle.Close() } catch {}
 
-    # Default StartMenu alignment 0=Left
-    Write-Host "Attempting to run: $PSItem"
+    Write-Host "Aligning Taskbar Left"
     $reg = New-ItemProperty "registry::HKEY_USERS\$($UserProfile.SID)\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "TaskbarAl" -Value "0" -PropertyType Dword -Force
     try { $reg.Handle.Close() } catch {}
-            
+
+    Write-Host "Enabling File Extensions"
+    $reg = Set-ItemProperty -Path "registry::HKEY_USERS\$($UserProfile.SID)\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "HideFileExt" -Value "0" -Force
+    try { $reg.Handle.Close() } catch {}
+    
+    Write-Host "Enabling Hidden Items"
+    $reg = Set-ItemProperty -Path "registry::HKEY_USERS\$($UserProfile.SID)\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "Hidden" -Value "1" -Force
+    try { $reg.Handle.Close() } catch {}
+
+    Write-Host "Setting Dark Mode"
+    $reg = Set-ItemProperty -Path "registry::HKEY_USERS\$($UserProfile.SID)\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize" -Name "SystemUsesLightTheme" -Value "0" -Force
+    try { $reg.Handle.Close() } catch {}
+
+    Write-Host "Setting Apps To Use Dark Mode"
+    $reg = Set-ItemProperty -Path "registry::HKEY_USERS\$($UserProfile.SID)\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize" -Name "AppsUseLightTheme" -Value "0" -Force
+    try { $reg.Handle.Close() } catch {}
+
     # Unload NTUser.dat
     if ($ProfileWasLoaded -eq $false) {
         [GC]::Collect()
@@ -105,3 +135,5 @@ Select-Object @{Name = "SID"; Expression = { $_.PSChildName } }, @{Name = "UserH
         Start-Process -FilePath "CMD.EXE" -ArgumentList "/C REG.EXE UNLOAD HKU\$($UserProfile.SID)" -Wait -WindowStyle Hidden
     }
 }
+
+Read-Host "Press any key to exit..."
