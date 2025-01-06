@@ -64,7 +64,7 @@ foreach ($UWPApp in $UWPApps) {
 }
 
 #Removes pre-installed versions of office
-$AllLanguages =  "en-us", "es-es", "fr-fr"
+$AllLanguages =  "en-us", "es-es", "fr-fr", "ko-kr", "pt-br", "th-th", "zh-cn", "zh-tw"
 $ClickToRunPath = "C:\Program Files\Common Files\Microsoft Shared\ClickToRun\OfficeClickToRun.exe" 
 foreach($Language in $AllLanguages){
     Start-Process $ClickToRunPath -ArgumentList "scenario=install scenariosubtype=ARP sourcetype=None productstoremove=O365HomePremRetail.16_$($Language)_x-none culture=$($Language) DisplayLevel=False" -Wait
