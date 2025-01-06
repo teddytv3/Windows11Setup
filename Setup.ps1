@@ -30,6 +30,13 @@ $UWPApps = @(
     "Microsoft.LinkedIn"
     "SpotifyAB.SpotifyMusic"
     "Microsoft.549981C3F5F10"
+    "MicrosoftCorporationII.MicrosoftFamily"
+    "Microsoft.WindowsAlarms"
+    "Microsoft.WindowsCalculator"
+    "Microsoft.WindowsCamera"
+    "Microsoft.Copilot"
+    "MicrosoftCorporationII.QuickAssist"
+    "Microsoft.GetHelp"
 )
 
 Write-Host "Removing Pre-Installed Software"
