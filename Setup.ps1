@@ -54,6 +54,8 @@ $UWPApps = @(
     "Microsoft.GetHelp"
     "Microsoft.OutlookForWindows"
     "Microsoft.OneDriveSync"
+    "7EE7776C.LinkedInforWindows"
+    "MSTeams"
 )
 
 Write-Host "Removing Pre-Installed Software"
@@ -64,7 +66,7 @@ foreach ($UWPApp in $UWPApps) {
 }
 
 #Removes pre-installed versions of office
-$AllLanguages =  "en-us", "es-es", "fr-fr", "ko-kr", "pt-br", "th-th", "zh-cn", "zh-tw"
+$AllLanguages =  "en-us", "es-es", "fr-fr", "ko-kr", "pt-br", "th-th", "zh-cn", "zh-tw", "ar-sa"
 $ClickToRunPath = "C:\Program Files\Common Files\Microsoft Shared\ClickToRun\OfficeClickToRun.exe" 
 foreach($Language in $AllLanguages){
     Start-Process $ClickToRunPath -ArgumentList "scenario=install scenariosubtype=ARP sourcetype=None productstoremove=O365HomePremRetail.16_$($Language)_x-none culture=$($Language) DisplayLevel=False" -Wait
