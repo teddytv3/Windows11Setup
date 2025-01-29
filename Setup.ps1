@@ -56,6 +56,8 @@ $UWPApps = @(
     "Microsoft.OneDriveSync"
     "7EE7776C.LinkedInforWindows"
     "MSTeams"
+    "Microsoft.Windows.DevHome"
+    "MicrosoftWindows.CrossDevice"
 )
 
 Write-Host "Removing Pre-Installed Software"
